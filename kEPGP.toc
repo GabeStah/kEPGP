@@ -1,0 +1,12 @@
+## Title: kEPGP |cffb5a5d5[0.0.100]|r |cff7fff7fAce3|r 
+## Version: 0.0.100
+## Author: Kulldam
+## Notes: ADDON DESCRIPTION
+## Interface: 50400
+## SavedVariables: kEPGPDB
+## Dependencies: kLib-1.0
+
+embeds.xml
+core.lua
+events.lua
+options.lua
