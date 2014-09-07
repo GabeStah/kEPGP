@@ -5,17 +5,12 @@ local select, pairs, print, next, type, unpack = select, pairs, print, next, typ
 local loadstring, assert, error = loadstring, assert, error
 local kEPGP = _G.kEPGP
 
-function kEPGP:PLAYER_ENTERING_WORLD()
-	RegisterAddonMessagePrefix("kEPGP")
-end
-
-function kEPGP:Event_GuildRosterUpdate()
-  self:Roster_Update()
-  self:ProcessEP()
-  self:Debug('Event_GuildRosterUpdate', 1)
-end
-
-
-function kEPGP:Event_OnZoneChanged()
-	self:Debug('Event_OnZoneChanged', GetRealZoneText(), 1)
+--[[ Determine if a Player is assigned Administrator Role
+@[player] string (Default: 'player') - Player name
+return boolean - Result of role match
+]]
+function kEPGP:Role_IsAdmin(player)
+  player = player or UnitName('player')
+  if not UnitExists(player) then return end
+  return (GetNumGroupMembers() and UnitIsGroupLeader(player) and CanEditOfficerNote()) or (GetNumGroupMembers() == 0 and player == UnitName('player') and CanEditOfficerNote())
 end

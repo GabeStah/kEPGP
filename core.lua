@@ -4,7 +4,14 @@ local math, tostring, string, strjoin, strlower, strsplit, strsub, strtrim, stru
 local select, pairs, print, next, type, unpack = select, pairs, print, next, type, unpack
 local loadstring, assert, error = loadstring, assert, error
 local kEPGP = LibStub("AceAddon-3.0"):NewAddon("kEPGP", "AceComm-3.0", "AceConsole-3.0", "AceEvent-3.0", "AceHook-3.0", "AceSerializer-3.0", "AceTimer-3.0", 
-	"kLib-1.0", "kLibColor-1.0", "kLibItem-1.0", "kLibOptions-1.0", "kLibTimer-1.0", "kLibUtility-1.0")
+	"kLib-1.0",
+	"kLibColor-1.0",
+	"kLibComm-1.0",
+	"kLibItem-1.0",
+	"kLibOptions-1.0",
+	"kLibTimer-1.0",
+	"kLibUtility-1.0",
+	"kLibView-1.0")
 _G.kEPGP = kEPGP
 
 function kEPGP:OnEnable() end
@@ -35,9 +42,10 @@ end
 
 function kEPGP:InitializeSettings()
 	-- Version
-	self.minRequiredVersion = '0.0.100'
-	self.version = '0.0.100'	
+	self.minRequiredVersion = '0.3.632'
+	self.version = '0.3.632'
 
+	self.actors = {}
 	self.alpha = {
 		disabled = 0.4,
 		enabled = 1
@@ -56,6 +64,8 @@ function kEPGP:InitializeSettings()
 		validChannels = {'RAID', 'GUILD', 'PARTY'},
 		validCommTypes = {'c', 's'}, -- c: client, s: server
 	}
+	-- Roster initialization
+	self.roster = {};
 	-- Addons for sets/equipment management
 	self.setAddons = {
 		{
@@ -85,6 +95,7 @@ function kEPGP:InitializeSettings()
 end
 
 function kEPGP:InitializeEvents()
+	self:RegisterEvent('GUILD_ROSTER_UPDATE', 'Event_GuildRosterUpdate')
 	self:RegisterEvent('ZONE_CHANGED', 'Event_OnZoneChanged')
 	self:RegisterEvent('ZONE_CHANGED_INDOORS', 'Event_OnZoneChanged')
 	self:RegisterEvent('ZONE_CHANGED_NEW_AREA', 'Event_OnZoneChanged')
@@ -92,19 +103,6 @@ end
 
 function kEPGP:InitializeTimers()
 
-end
-
---[[ Output basic error messages
-]]
-function kEPGP:Error(...)
-	if not ... then return end
-	self:Print(ChatFrame1, ('Error: %s'):format(strjoin(' - ', ...)))
-end
-
---[[ Check if debug mode active
-]]
-function kEPGP:InDebug()
-	return self.db.profile.debug.enabled
 end
 
 --[[ Process comm receiving
@@ -134,7 +132,32 @@ function kEPGP:OnUpdate(elapsed)
 	self.update[updateType].timeSince = (self.update[updateType].timeSince or 0) + elapsed
 	if (self.update[updateType].timeSince > self.db.profile.settings.update[updateType].interval) then	
 		-- Process timers
-		-- self:Timer_ProcessAll(updateType)
+		self:Timer_ProcessAll(updateType)
 		self.update[updateType].timeSince = 0
 	end
+end
+
+--[[ Process the EP award values
+]]
+function kEPGP:ProcessEP(raid)
+  local raid = kEPGP:Raid_Get(raid)
+  if not raid then
+    kEPGP:Debug('ProcessEPGP', 'No active raid found, cannot process.', 1)
+    return
+  end
+
+  -- Loop through all actors
+  for iActor,actor in pairs(kEPGP.actors) do
+  	-- Check if primary
+  	if actor.hasStanding then
+			-- PROCESS ONLINE EP (1000 EP)
+			onlineEP = kEPGP:Raid_RewardEP(raid, actor, 'online')
+  		-- PROCESS PUNCTUAL EP (200 EP)
+			punctualEP = kEPGP:Raid_RewardEP(raid, actor, 'punctual')
+			if onlineEP or punctualEP then
+				-- Process officer note
+				EPGP:IncEPBy(actor.name, (''):format(), (onlineEP or 0) + (punctualEP or 0), nil, true)				
+			end
+  	end
+  end
 end

@@ -12,6 +12,13 @@ kEPGP.defaults = {
 			enableTimers = true,
 			threshold = 1,
 		},
+		ep = {		
+			onlineCutoffPeriod = 3600,
+			onlineEP = 1000,			
+			punctualCutoffPeriod = 15,
+			punctualEP = 200,
+		},
+		raids = {},
 		settings = {
 			update = {
 				auction = {
@@ -97,6 +104,53 @@ kEPGP.options = {
 				kEPGP:Manual_Raid(...)
 			end,
 			guiHidden = true,			
+		},
+		ep = {
+			name = 'Effort Points',
+			type = 'group',
+			args = {
+				onlineEP = {
+					name = 'Online EP',
+					type = 'input',
+					desc = 'Amount of EP awarded for Online EP bonus',
+					pattern = '%d+',
+					width = 'full',
+					set = function(info,value) kEPGP.db.profile.ep.onlineEP = value end,
+					get = function(info) return tostring(kEPGP.db.profile.ep.onlineEP) end,
+					order = 1,
+				},
+				punctualEP = {
+					name = 'Punctual EP',
+					type = 'input',
+					desc = 'Amount of EP awarded for Punctual EP bonus',
+					pattern = '%d+',
+					width = 'full',
+					set = function(info,value) kEPGP.db.profile.ep.punctualEP = value end,
+					get = function(info) return tostring(kEPGP.db.profile.ep.punctualEP) end,
+					order = 2,
+				},
+				onlineCutoffPeriod = {
+					name = 'Online Cutoff Seconds',
+					type = 'input',
+					desc = 'Seconds after raid start to earn Online EP',
+					pattern = '%d+',
+					width = 'full',
+					set = function(info,value) kEPGP.db.profile.ep.onlineCutoffPeriod = value end,
+					get = function(info) return tostring(kEPGP.db.profile.ep.onlineCutoffPeriod) end,
+					order = 5,
+				},					
+				punctualCutoffPeriod = {
+					name = 'Punctual Cutoff Seconds',
+					type = 'input',
+					desc = 'Seconds after raid start to earn Punctual EP',
+					pattern = '%d+',
+					width = 'full',
+					set = function(info,value) kEPGP.db.profile.ep.punctualCutoffPeriod = value end,
+					get = function(info) return tostring(kEPGP.db.profile.ep.punctualCutoffPeriod) end,
+					order = 6,
+				},				
+			},
+			cmdHidden = true,
 		},
 		version = {
 			type = 'execute',

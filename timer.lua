@@ -5,17 +5,8 @@ local select, pairs, print, next, type, unpack = select, pairs, print, next, typ
 local loadstring, assert, error = loadstring, assert, error
 local kEPGP = _G.kEPGP
 
-function kEPGP:PLAYER_ENTERING_WORLD()
-	RegisterAddonMessagePrefix("kEPGP")
-end
-
-function kEPGP:Event_GuildRosterUpdate()
-  self:Roster_Update()
-  self:ProcessEP()
-  self:Debug('Event_GuildRosterUpdate', 1)
-end
-
-
-function kEPGP:Event_OnZoneChanged()
-	self:Debug('Event_OnZoneChanged', GetRealZoneText(), 1)
+--[[ Update the roster of the raid every 10 seconds
+]]
+function kEPGP:Timer_ProcessEP()
+  self:Timer_Create('ProcessEP', 10, true)
 end
