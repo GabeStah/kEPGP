@@ -99,7 +99,7 @@ kEPGP.options = {
         raid = {
 			type = 'execute',
 			name = 'raid',
-			desc = 'Start or stop a raid - /kl raid [keyword] - start, begin, stop, end',
+			desc = 'Start or stop a raid - /kl raid [keyword] - start, begin, stop, end, revert, reverse',
 			func = function(...) 
 				kEPGP:Manual_Raid(...)
 			end,

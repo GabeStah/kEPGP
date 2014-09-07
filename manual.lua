@@ -18,6 +18,9 @@ function kEPGP:Manual_Raid(input)
     {text = '^raid%s+end', func = 'Raid_End'},
     {text = '^r%s+stop', func = 'Raid_End'},
     {text = '^r%s+end', func = 'Raid_End'},
+    {text = '^raid%s+revert', func = 'Raid_Revert'},
+    {text = '^raid%s+reverse', func = 'Raid_Revert'},
+    {text = '^raid%s+rev', func = 'Raid_Revert'},
   }
   if type(input) == 'table' then
     -- Check if manual input field exists

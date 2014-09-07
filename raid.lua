@@ -71,7 +71,8 @@ function kEPGP:Raid_Create(id, isClient)
     actors = {},
     id = id,
     objectType = 'raid',
-    startTime = time(),   
+    startTime = time(),
+    startDate = date(), 
   }
   tinsert(self.db.profile.raids, raid)
   -- Bump active raid
@@ -85,6 +86,7 @@ function kEPGP:Raid_Create(id, isClient)
   -- Create Raid Roster timer
   -- Unnecessary due to GUILD_ROSTER_UPDATE event
   -- self:Timer_ProcessEP()
+  kEPGP:Print(('Raid @ %s created.'):format(date()))
   return id
 end
 
@@ -254,6 +256,28 @@ function kEPGP:Raid_Resume()
     self:Debug('Raid_Resume', 'Roster updated.', 3)
     self:Debug('Raid_Resume', 'Resume complete.', 3)
   end
+end
+
+function kEPGP:Raid_Revert()
+  -- Verify role
+  if not kEPGP:Role_IsAdmin() then
+    kEPGP:Error('Raid_Revert', 'Invalid permission to revert raid.')
+    return
+  end
+  local raid = kEPGP:Raid_GetActive()
+  -- Is raid already active?
+  if not raid then
+    kEPGP:Error('Raid_Revert', 'No raid is active, reversion cancelled.')
+    return
+  end
+
+  -- Loop through all actors
+  for iActor,actor in pairs(raid.actors) do
+    if actor.onlineEP or actor.punctualEP then
+      EPGP:IncEPBy(actor.name, ('[Revert] Raid @ %s'):format(raid.startDate), -1 * ((actor.onlineEP or 0) + (actor.punctualEP or 0)))
+    end
+  end
+  kEPGP:Print(('Reversion complete for Raid @ %s'):format(raid.startDate))
 end
 
 function kEPGP:Raid_RewardEP(raid, actor, type)

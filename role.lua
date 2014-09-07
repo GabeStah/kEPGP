@@ -12,5 +12,5 @@ return boolean - Result of role match
 function kEPGP:Role_IsAdmin(player)
   player = player or UnitName('player')
   if not UnitExists(player) then return end
-  return (GetNumGroupMembers() and UnitIsGroupLeader(player) and CanEditOfficerNote()) or (GetNumGroupMembers() == 0 and player == UnitName('player') and CanEditOfficerNote())
+  return (GetNumGroupMembers() and CanEditOfficerNote()) or (GetNumGroupMembers() == 0 and player == UnitName('player') and CanEditOfficerNote())
 end
