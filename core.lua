@@ -42,8 +42,8 @@ end
 
 function kEPGP:InitializeSettings()
 	-- Version
-	self.minRequiredVersion = '0.3.632'
-	self.version = '0.3.632'
+	self.minRequiredVersion = '0.3.635'
+	self.version = '0.3.635'
 
 	self.actors = {}
 	self.alpha = {
@@ -156,7 +156,7 @@ function kEPGP:ProcessEP(raid)
 			punctualEP = kEPGP:Raid_RewardEP(raid, actor, 'punctual')
 			if onlineEP or punctualEP then
 				-- Process officer note
-				EPGP:IncEPBy(actor.name, (''):format(), (onlineEP or 0) + (punctualEP or 0), nil, true)				
+				EPGP:IncEPBy(actor.name, ('Raid @ %s'):format(date()), (onlineEP or 0) + (punctualEP or 0))				
 			end
   	end
   end
