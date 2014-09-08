@@ -15,7 +15,7 @@ kEPGP.defaults = {
 		ep = {		
 			onlineCutoffPeriod = 3600,
 			onlineEP = 1000,			
-			punctualCutoffPeriod = 15,
+			punctualCutoffPeriod = 30,
 			punctualEP = 200,
 		},
 		raids = {},
