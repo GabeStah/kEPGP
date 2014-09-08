@@ -42,8 +42,8 @@ end
 
 function kEPGP:InitializeSettings()
 	-- Version
-	self.minRequiredVersion = '0.3.637'
-	self.version = '0.3.637'
+	self.minRequiredVersion = '0.3.638'
+	self.version = '0.3.638'
 
 	self.actors = {}
 	self.alpha = {

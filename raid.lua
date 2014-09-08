@@ -301,7 +301,7 @@ function kEPGP:Raid_RewardEP(raid, actor, type)
         -- 100% Online EP
         onlineEP = self.db.profile.ep.onlineEP
       else
-        onlineEP = math.round(self.db.profile.ep.onlineEP * ((self.db.profile.ep.onlineCutoffPeriod - (raidActor.firstOnline - raid.startTime)) / self.db.profile.ep.onlineCutoffPeriod))
+        onlineEP = self:Utility_Round(self.db.profile.ep.onlineEP * ((self.db.profile.ep.onlineCutoffPeriod - (raidActor.firstOnline - raid.startTime)) / self.db.profile.ep.onlineCutoffPeriod))
       end
       raidActor.onlineEP = onlineEP
       self:Debug('Online EP Reward', raidActor.name, raidActor.realm, raidActor.onlineEP, 1)
@@ -310,7 +310,7 @@ function kEPGP:Raid_RewardEP(raid, actor, type)
   elseif type == 'punctual' and not raidActor.punctualEP then
     -- Check if first online within threshold and after or at raid start
     if raidActor.firstOnline and (raidActor.firstOnline <= (raid.startTime + self.db.profile.ep.punctualCutoffPeriod)) and (raidActor.firstOnline >= raid.startTime) then   
-      raidActor.punctualEP = math.round(self.db.profile.ep.punctualEP)
+      raidActor.punctualEP = self:Utility_Round(self.db.profile.ep.punctualEP)
       self:Debug('Punctual EP Reward', raidActor.name, raidActor.realm, raidActor.punctualEP, 1)
       return raidActor.punctualEP
     end
