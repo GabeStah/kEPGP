@@ -37,19 +37,6 @@ function kEPGP:Roster_Update()
       self:Actor_Create(name, self:Actor_NameHasRealm(name) or realm, class, online and true or false, true, currentTime, nil, nil, main, hasStanding)
     end 
   end
-
-
-  -- local roster = {}
-  -- -- Find EPGP guild members
-  -- for i,v in pairs(self.roster.raid) do
-  --   roster[i] = v
-  -- end
-  -- for iGuild,vGuild in pairs(self.roster.guild) do
-  --   if not roster[iGuild] then
-  --     roster[iGuild] = vGuild
-  --   end
-  -- end
-  -- return roster
 end
 
 --[[ Rebuild full roster from raid/guild rosters

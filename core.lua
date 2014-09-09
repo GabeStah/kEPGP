@@ -42,8 +42,8 @@ end
 
 function kEPGP:InitializeSettings()
 	-- Version
-	self.minRequiredVersion = '0.3.638'
-	self.version = '0.3.638'
+	self.minRequiredVersion = '0.3.641'
+	self.version = '0.3.641'
 
 	self.actors = {}
 	self.alpha = {
@@ -137,6 +137,23 @@ function kEPGP:OnUpdate(elapsed)
 	end
 end
 
+function kEPGP:Output(type, ...)
+	if not type then return end
+	if type == 'Raid_Create' then
+		kEPGP:Print(('Raid @ %s created.'):format(date()))
+	elseif type == 'Raid_End' then
+		local raid = select(1, ...)
+		if raid then
+			kEPGP:Print(('Raid @ %s stopped.'):format(raid.startDate))
+		end
+	elseif type == 'Raid_Revert' then
+		local raid = select(1, ...)
+		if raid then
+			kEPGP:Print(('Reversion complete for Raid @ %s'):format(raid.startDate))
+		end
+	end
+end
+
 --[[ Process the EP award values
 ]]
 function kEPGP:ProcessEP(raid)
@@ -156,7 +173,7 @@ function kEPGP:ProcessEP(raid)
 			punctualEP = kEPGP:Raid_RewardEP(raid, actor, 'punctual')
 			if onlineEP or punctualEP then
 				-- Process officer note
-				EPGP:IncEPBy(actor.name, ('Raid @ %s'):format(date()), (onlineEP or 0) + (punctualEP or 0))				
+				EPGP:IncEPBy(actor.name, ('Raid @ %s'):format(date()), (onlineEP or 0) + (punctualEP or 0), nil, true)
 			end
   	end
   end

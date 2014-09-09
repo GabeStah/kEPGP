@@ -86,7 +86,7 @@ function kEPGP:Raid_Create(id, isClient)
   -- Create Raid Roster timer
   -- Unnecessary due to GUILD_ROSTER_UPDATE event
   -- self:Timer_ProcessEP()
-  kEPGP:Print(('Raid @ %s created.'):format(date()))
+  self:Output('Raid_Create')
   return id
 end
 
@@ -130,7 +130,8 @@ function kEPGP:Raid_Destroy(raid, isClient)
     kEPGP:Comm_RaidDestroy(raid.id)
   end
   -- Destroy Raid Roster timer
-  self:Timer_Destroy('ProcessEP') 
+  self:Timer_Destroy('ProcessEP')
+  return raid
 end
 
 --[[ Get Raid by id or raid object, most recent if not specified
@@ -180,7 +181,8 @@ function kEPGP:Raid_End()
     return
   end
   -- Destroy active raid
-  kEPGP:Raid_Destroy()
+  local raid = kEPGP:Raid_Destroy()
+  kEPGP:Output('Raid_End', raid)
 end
 
 --[[ Generate the initial raid roster
@@ -274,10 +276,10 @@ function kEPGP:Raid_Revert()
   -- Loop through all actors
   for iActor,actor in pairs(raid.actors) do
     if actor.onlineEP or actor.punctualEP then
-      EPGP:IncEPBy(actor.name, ('[Revert] Raid @ %s'):format(raid.startDate), -1 * ((actor.onlineEP or 0) + (actor.punctualEP or 0)))
+      EPGP:IncEPBy(actor.name, ('[Revert] Raid @ %s'):format(raid.startDate), -1 * ((actor.onlineEP or 0) + (actor.punctualEP or 0)), nil, true)
     end
   end
-  kEPGP:Print(('Reversion complete for Raid @ %s'):format(raid.startDate))
+  kEPGP:Output('Raid_Revert', raid)
 end
 
 function kEPGP:Raid_RewardEP(raid, actor, type)
