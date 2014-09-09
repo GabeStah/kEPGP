@@ -3,7 +3,7 @@ local table, tinsert, tremove, wipe, sort, date, time, random = table, table.ins
 local math, tostring, string, strjoin, strlower, strsplit, strsub, strtrim, strupper, floor, tonumber = math, tostring, string, string.join, string.lower, string.split, string.sub, string.trim, string.upper, math.floor, tonumber
 local select, pairs, print, next, type, unpack = select, pairs, print, next, type, unpack
 local loadstring, assert, error = loadstring, assert, error
-local kEPGP = LibStub("AceAddon-3.0"):NewAddon("kEPGP", "AceComm-3.0", "AceConsole-3.0", "AceEvent-3.0", "AceHook-3.0", "AceSerializer-3.0", "AceTimer-3.0", 
+local kEPGP = LibStub("AceAddon-3.0"):NewAddon("kEPGP", "AceComm-3.0", "AceConsole-3.0", "AceEvent-3.0", "AceHook-3.0", "AceSerializer-3.0", "AceTimer-3.0",
 	"kLib-1.0",
 	"kLibColor-1.0",
 	"kLibComm-1.0",
@@ -42,8 +42,8 @@ end
 
 function kEPGP:InitializeSettings()
 	-- Version
-	self.minRequiredVersion = '0.3.641'
-	self.version = '0.3.641'
+	self.minRequiredVersion = '0.3.645'
+	self.version = '0.3.645'
 
 	self.actors = {}
 	self.alpha = {
@@ -64,8 +64,9 @@ function kEPGP:InitializeSettings()
 		validChannels = {'RAID', 'GUILD', 'PARTY'},
 		validCommTypes = {'c', 's'}, -- c: client, s: server
 	}
+	self.outputs = {}	
 	-- Roster initialization
-	self.roster = {};
+	self.roster = {}
 	-- Addons for sets/equipment management
 	self.setAddons = {
 		{
@@ -99,6 +100,30 @@ function kEPGP:InitializeEvents()
 	self:RegisterEvent('ZONE_CHANGED', 'Event_OnZoneChanged')
 	self:RegisterEvent('ZONE_CHANGED_INDOORS', 'Event_OnZoneChanged')
 	self:RegisterEvent('ZONE_CHANGED_NEW_AREA', 'Event_OnZoneChanged')
+
+	if IsAddOnLoaded('EPGP') then
+		EPGP.RegisterCallback(self, 'EPAward', 'Event_OnEPAward')
+		EPGP.RegisterCallback(self, 'GPAward', 'Event_OnGPAward')
+	end
+end
+
+function kEPGP:Event_OnEPAward(name, reason, amount, mass)
+	self:Debug('Event_OnEPAward', name, reason, amount, mass, 3)
+end
+
+function kEPGP:Event_OnGPAward(name, reason, amount, mass)
+	self.outputs.gp = self.outputs.gp or {}
+	if name == 'GUILD_BANK' then
+		self:Debug('Event_OnGPAward', name, reason, amount, mass, 3)
+	else
+		self:Debug('Event_OnGPAward', name, reason, amount, mass, 3)
+	end
+	tinsert(self.outputs.gp, {
+		name = name,
+		reason = reason,
+		amount = amount,
+		mass = mass,
+	})
 end
 
 function kEPGP:InitializeTimers()
