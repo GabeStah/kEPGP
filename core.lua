@@ -143,14 +143,30 @@ function kEPGP:Output(type, ...)
 		kEPGP:Print(('Raid @ %s created.'):format(date()))
 	elseif type == 'Raid_End' then
 		local raid = select(1, ...)
-		if raid then
-			kEPGP:Print(('Raid @ %s stopped.'):format(raid.startDate))
-		end
+		if not raid then return end
+		kEPGP:Print(('Raid @ %s stopped.'):format(raid.startDate))
 	elseif type == 'Raid_Revert' then
 		local raid = select(1, ...)
-		if raid then
-			kEPGP:Print(('Reversion complete for Raid @ %s'):format(raid.startDate))
+		if not raid then return end
+		kEPGP:Print(('Reversion complete for Raid @ %s'):format(raid.startDate))
+		self:OutputGlobal(('kEPGP: Raid @ %s EP reverted.'):format(raid.startDate))
+	elseif type == 'ProcessEP' then
+		self:OutputGlobal(select(1, ...))
+	end
+end
+
+function kEPGP:OutputGlobal(msg)
+	if not msg then return end
+	if not self.db.profile.output.enabled then return end
+	if self.db.profile.output.channel == 'CHANNEL' then
+		local index = GetChannelName(self.db.profile.output.target)
+		if index then
+			SendChatMessage(msg, self.db.profile.output.channel, nil, index)
 		end
+	elseif self.db.profile.output.channel == 'WHISPER' then
+		SendChatMessage(msg, self.db.profile.output.channel, nil, self.db.profile.output.target)
+	else
+		SendChatMessage(msg, self.db.profile.output.channel)
 	end
 end
 
@@ -163,18 +179,70 @@ function kEPGP:ProcessEP(raid)
     return
   end
 
+  local ep, msg
+  local actors = {}
   -- Loop through all actors
   for iActor,actor in pairs(kEPGP.actors) do
   	-- Check if primary
   	if actor.hasStanding then
 			-- PROCESS ONLINE EP (1000 EP)
-			onlineEP = kEPGP:Raid_RewardEP(raid, actor, 'online')
+			onlineEP, tardySeconds, penaltyEP = kEPGP:Raid_RewardEP(raid, actor, 'online')
   		-- PROCESS PUNCTUAL EP (200 EP)
 			punctualEP = kEPGP:Raid_RewardEP(raid, actor, 'punctual')
 			if onlineEP or punctualEP then
+				ep = (onlineEP or 0) + (punctualEP or 0)
+				actors = actors or {}
+				actors[ep] = actors[ep] or {}
+				tinsert(actors[ep], {
+					ep = ep,
+					name = name,					
+					onlineEP = onlineEP,
+					penaltyEP = penaltyEP,
+					punctualEP = punctualEP,
+					tardySeconds = tardySeconds,
+				})
+
 				-- Process officer note
-				EPGP:IncEPBy(actor.name, ('Raid @ %s'):format(date()), (onlineEP or 0) + (punctualEP or 0), nil, true)
+				EPGP:IncEPBy(actor.name, ('Raid @ %s'):format(date()), ep, nil, true)
 			end
   	end
   end
+
+  local messages = {}
+  -- Process output messages
+  for i,v in pairs(actors) do
+  	local names = {}
+		local ep, onlineEP, penaltyEP, punctualEP, tardySeconds
+		ep = v[1].ep
+		onlineEP = v[1].onlineEP
+		penaltyEP = v[1].penaltyEP
+		punctualEP = v[1].punctualEP
+		tardySeconds = v[1].tardySeconds
+  	for iActor,actor in pairs(v) do
+  		tinsert(names, actor.name)
+  	end
+  	-- Sort by name
+  	table.sort(names)
+  	local fullNameString, msg = '', ''
+  	for iName, name in pairs(names) do
+  		-- If too long, output
+  		if strlen(msg .. name) >= 255 then
+  			tinsert(messages, msg)
+  			-- Reset fullNameString
+  			fullNameString = name
+  		else
+  			fullNameString = fullNameString .. name
+  		end
+			if tardySeconds and penaltyEP and (penaltyEP > 0) then
+				msg = ('kEPGP: [%s] +%s EP Awarded (-%s EP Penalty for %s tardiness)'):format(fullNameString, ep, penaltyEP, self:Utility_SecondsToClock(tardySeconds))
+			else
+				msg = ('kEPGP: +%s EP Awarded to %s'):format(ep, fullNameString)
+			end  	
+  	end
+  	tinsert(messages, msg)
+  end
+	-- Output
+	for iMessage, message in pairs(messages) do
+		self:Output('ProcessEP', message)
+	end
 end

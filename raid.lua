@@ -297,17 +297,19 @@ function kEPGP:Raid_RewardEP(raid, actor, type)
   if type == 'online' and not raidActor.onlineEP then
     -- Check if first online within threshold
     if raidActor.firstOnline and (raidActor.firstOnline <= (raid.startTime + self.db.profile.ep.onlineCutoffPeriod)) then
-      local onlineEP
+      local onlineEP, tardySeconds
       -- If firstOnline before or on raid start
       if raidActor.firstOnline <= raid.startTime then
         -- 100% Online EP
         onlineEP = self.db.profile.ep.onlineEP
       else
         onlineEP = self:Utility_Round(self.db.profile.ep.onlineEP * ((self.db.profile.ep.onlineCutoffPeriod - (raidActor.firstOnline - raid.startTime)) / self.db.profile.ep.onlineCutoffPeriod))
+        penaltyEP = self.db.profile.ep.onlineEP - onlineEP
+        tardySeconds = raidActor.firstOnline - raid.startTime
       end
       raidActor.onlineEP = onlineEP
       self:Debug('Online EP Reward', raidActor.name, raidActor.realm, raidActor.onlineEP, 1)
-      return raidActor.onlineEP
+      return raidActor.onlineEP, tardySeconds, penaltyEP
     end   
   elseif type == 'punctual' and not raidActor.punctualEP then
     -- Check if first online within threshold and after or at raid start
