@@ -42,8 +42,8 @@ end
 
 function kEPGP:InitializeSettings()
 	-- Version
-	self.minRequiredVersion = '0.3.645'
-	self.version = '0.3.645'
+	self.minRequiredVersion = '0.3.652'
+	self.version = '0.3.652'
 
 	self.actors = {}
 	self.alpha = {
@@ -220,7 +220,7 @@ function kEPGP:ProcessEP(raid)
 				actors[ep] = actors[ep] or {}
 				tinsert(actors[ep], {
 					ep = ep,
-					name = name,					
+					name = actor.name,					
 					onlineEP = onlineEP,
 					penaltyEP = penaltyEP,
 					punctualEP = punctualEP,
@@ -256,7 +256,11 @@ function kEPGP:ProcessEP(raid)
   			-- Reset fullNameString
   			fullNameString = name
   		else
-  			fullNameString = fullNameString .. name
+  			if fullNameString == '' then
+  				fullNameString = name		
+  			else
+  				fullNameString = ('%s, %s'):format(fullNameString, name)  				
+  			end
   		end
 			if tardySeconds and penaltyEP and (penaltyEP > 0) then
 				msg = ('kEPGP: [%s] +%s EP Awarded (-%s EP Penalty for %s tardiness)'):format(fullNameString, ep, penaltyEP, self:Utility_SecondsToClock(tardySeconds))

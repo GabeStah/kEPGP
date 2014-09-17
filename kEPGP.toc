@@ -1,5 +1,5 @@
-## Title: kEPGP |cffb5a5d5[0.3.645]|r |cff7fff7fAce3|r 
-## Version: 0.3.645
+## Title: kEPGP |cffb5a5d5[0.3.652]|r |cff7fff7fAce3|r 
+## Version: 0.3.652
 ## Author: Kulldam
 ## Notes: A helper addon for automating EP rewards for EPGP.
 ## Interface: 50400
@@ -18,5 +18,6 @@ options.lua
 raid.lua
 role.lua
 roster.lua
+test.lua
 timer.lua
 view.lua
