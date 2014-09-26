@@ -83,9 +83,8 @@ function kEPGP:Raid_Create(id, isClient)
   end
   -- ProcessEP
   self:ProcessEP()
-  -- Create Raid Roster timer
-  -- Unnecessary due to GUILD_ROSTER_UPDATE event
-  -- self:Timer_ProcessEP()
+  -- Create update timer
+  self:Timer_ProcessEP(true)
   self:Output('Raid_Create')
   return id
 end
@@ -129,7 +128,8 @@ function kEPGP:Raid_Destroy(raid, isClient)
   if not isClient then
     kEPGP:Comm_RaidDestroy(raid.id)
   end
-  -- Destroy Raid Roster timer
+  -- Destroy Raid Roster timers
+  self:Timer_Destroy('Event_GuildRosterUpdate')  
   self:Timer_Destroy('ProcessEP')
   return raid
 end

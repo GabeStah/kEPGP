@@ -42,8 +42,8 @@ end
 
 function kEPGP:InitializeSettings()
 	-- Version
-	self.minRequiredVersion = '0.3.652'
-	self.version = '0.3.652'
+	self.minRequiredVersion = '0.3.673'
+	self.version = '0.3.673'
 
 	self.actors = {}
 	self.alpha = {
@@ -96,7 +96,7 @@ function kEPGP:InitializeSettings()
 end
 
 function kEPGP:InitializeEvents()
-	self:RegisterEvent('GUILD_ROSTER_UPDATE', 'Event_GuildRosterUpdate')
+	--self:RegisterEvent('GUILD_ROSTER_UPDATE', 'Event_GuildRosterUpdate')
 	self:RegisterEvent('ZONE_CHANGED', 'Event_OnZoneChanged')
 	self:RegisterEvent('ZONE_CHANGED_INDOORS', 'Event_OnZoneChanged')
 	self:RegisterEvent('ZONE_CHANGED_NEW_AREA', 'Event_OnZoneChanged')

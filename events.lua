@@ -10,9 +10,9 @@ function kEPGP:PLAYER_ENTERING_WORLD()
 end
 
 function kEPGP:Event_GuildRosterUpdate()
-  self:Roster_Update()
-  self:ProcessEP()
-  self:Debug('Event_GuildRosterUpdate', 1)
+  kEPGP:Roster_Update()
+  kEPGP:ProcessEP()
+  kEPGP:Debug('Event_GuildRosterUpdate', 1)
 end
 
 

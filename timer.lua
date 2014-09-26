@@ -7,6 +7,10 @@ local kEPGP = _G.kEPGP
 
 --[[ Update the roster of the raid every 10 seconds
 ]]
-function kEPGP:Timer_ProcessEP()
-  self:Timer_Create('ProcessEP', 10, true)
+function kEPGP:Timer_ProcessEP(slow)
+  if slow then
+    kEPGP:Timer_Create('Event_GuildRosterUpdate', 30, true)
+  else
+    kEPGP:Timer_Create('ProcessEP', 10, true)
+  end
 end
