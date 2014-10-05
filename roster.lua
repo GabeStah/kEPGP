@@ -18,7 +18,9 @@ function kEPGP:Roster_Update()
     -- Get EPGP info
     ep, gp, main = EPGP:GetEPGP(self:Actor_Name(name))
     hasStanding = (ep and (not main)) and true or false
-    self:Actor_Create(name, realm, class, online and true or false, false, currentTime, note, officerNote, main, hasStanding)
+    if hasStanding then
+      self:Actor_Create(name, realm, class, online and true or false, false, currentTime, note, officerNote, main, hasStanding)
+    end
   end 
 
   -- From raid
@@ -27,14 +29,18 @@ function kEPGP:Roster_Update()
     -- Get EPGP info
     ep, gp, main = EPGP:GetEPGP(self:Actor_Name(name))
     hasStanding = (ep and (not main)) and true or false    
-    self:Actor_Create(UnitName('player'), realm, UnitClass('player'), true, true, currentTime, nil, nil, main, hasStanding)
+    if hasStanding then
+      self:Actor_Create(UnitName('player'), realm, UnitClass('player'), true, true, currentTime, nil, nil, main, hasStanding)
+    end
   else
     for i=1,count do
       name, _, _, _, class, _, _, online = GetRaidRosterInfo(i)
       -- Get EPGP info
       ep, gp, main = EPGP:GetEPGP(self:Actor_Name(name))
       hasStanding = (ep and (not main)) and true or false
-      self:Actor_Create(name, self:Actor_NameHasRealm(name) or realm, class, online and true or false, true, currentTime, nil, nil, main, hasStanding)
+      if hasStanding then
+        self:Actor_Create(name, self:Actor_NameHasRealm(name) or realm, class, online and true or false, true, currentTime, nil, nil, main, hasStanding)
+      end
     end 
   end
 end

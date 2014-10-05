@@ -50,7 +50,7 @@ function kEPGP:Raid_ActorCreate(raid, name, realm)
   raidActor = {
     name = actor.name,
     realm = actor.realm,
-    firstOnline = (self:Actor_IsOnline(actor) or self:Actor_IsOnline(actor, true)) and time() or nil
+    firstOnline = self:Actor_IsOnline(actor) and time() or nil
   }
   tinsert(raid.actors, raidActor)
   return raidActor
@@ -287,7 +287,7 @@ function kEPGP:Raid_RewardEP(raid, actor, type)
   if not raid or not actor then return end
   local isOnline = false
   -- Check if online
-  if kEPGP:Actor_IsOnline(actor) or kEPGP:Actor_IsOnline(actor, true) then isOnline = true end  
+  if kEPGP:Actor_IsOnline(actor) then isOnline = true end  
   -- Find exising raid actor record
   raidActor = kEPGP:Raid_Actor(raid, actor.name, actor.realm, isOnline)
   if not raidActor then -- Create
