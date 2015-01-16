@@ -14,11 +14,11 @@ function kEPGP:Guild_GenerateRoster()
   local realm = GetRealmName()
   local hasStanding
   for i=1,count do
-    local name,_, _, _, class, _, note, officerNote, online = GetGuildRosterInfo(i)   
+    local name,rank, _, _, class, _, note, officerNote, online = GetGuildRosterInfo(i)   
     -- Get EPGP info
     ep, gp, main = EPGP:GetEPGP(self:Actor_Name(name))
     hasStanding = (ep and (not main)) and true or false
-    roster[name] = self:Actor_Create(name, realm, class, online and true or false, false, currentTime, note, officerNote, main, hasStanding)
+    roster[name] = self:Actor_Create(name, realm, class, online and true or false, false, currentTime, note, officerNote, main, hasStanding, rank)
   end 
   return roster
 end

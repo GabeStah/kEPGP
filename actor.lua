@@ -7,7 +7,7 @@ local kEPGP = _G.kEPGP
 
 --[[ Create new Actor entry
 ]]
-function kEPGP:Actor_Create(name, realm, class, online, inRaid, time, guildNote, officerNote, mainCharacter, hasStanding)
+function kEPGP:Actor_Create(name, realm, class, online, inRaid, time, guildNote, officerNote, mainCharacter, hasStanding, rank, ep, gp)
   if self:Actor_NameHasRealm(name) then realm = self:Actor_NameHasRealm(name) end
   local actor = {
     class = class,          
@@ -25,12 +25,14 @@ function kEPGP:Actor_Create(name, realm, class, online, inRaid, time, guildNote,
     name = self:Actor_NameOnly(name), 
     objectType = 'actor',
     realm = realm or GetRealmName(),
+    rank = rank,
+    ep = ep or 0,
+    gp = gp or 0,
   }
   existing = self:Actor_Get(name, realm)
   if existing then
     -- Update
-    self:Actor_Update(name, realm, online, inRaid, time, guildNote, officerNote, mainCharacter, hasStanding)
-    return existing
+    return self:Actor_Update(name, realm, online, inRaid, time, guildNote, officerNote, mainCharacter, hasStanding, rank, ep, gp)
   else
     -- Add
     tinsert(self.actors, actor)
@@ -107,7 +109,7 @@ end
 
 --[[ Update actor entry in raid table
 ]]
-function kEPGP:Actor_Update(name, realm, online, inRaid, time, guildNote, officerNote, mainCharacter, hasStanding)
+function kEPGP:Actor_Update(name, realm, online, inRaid, time, guildNote, officerNote, mainCharacter, hasStanding, rank, ep, gp)
   if not name then 
     self:Debug('Actor_Update', 'No name found.', 1)
     return
@@ -130,10 +132,13 @@ function kEPGP:Actor_Update(name, realm, online, inRaid, time, guildNote, office
       end
     end
     -- Update fields
-    actor.guildNote = guildNote
-    actor.officerNote = officerNote
+    actor.guildNote 	  = guildNote
+    actor.officerNote 	= officerNote
     actor.mainCharacter = mainCharacter
-    actor.hasStanding = hasStanding
-    return true -- Found, return true
+    actor.hasStanding 	= hasStanding
+    actor.rank 			    = rank
+    actor.ep            = ep or 0
+    actor.gp            = gp or 0
+    return actor -- Found, return true
   end
 end

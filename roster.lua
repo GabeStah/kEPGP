@@ -34,12 +34,12 @@ function kEPGP:Roster_Update()
     end
   else
     for i=1,count do
-      name, _, _, _, class, _, _, online = GetRaidRosterInfo(i)
+      name, rank, _, _, class, _, _, online = GetRaidRosterInfo(i)
       -- Get EPGP info
       ep, gp, main = EPGP:GetEPGP(self:Actor_Name(name))
       hasStanding = (ep and (not main)) and true or false
       if hasStanding then
-        self:Actor_Create(name, self:Actor_NameHasRealm(name) or realm, class, online and true or false, true, currentTime, nil, nil, main, hasStanding)
+        self:Actor_Create(name, self:Actor_NameHasRealm(name) or realm, class, online and true or false, true, currentTime, nil, nil, main, hasStanding, rank)
       end
     end 
   end
@@ -62,11 +62,11 @@ function kEPGP:Guild_GenerateRoster()
   local realm = GetRealmName()
   local hasStanding
   for i=1,count do
-    local name,_, _, _, class, _, note, officerNote, online = GetGuildRosterInfo(i)   
+    local name, rank, _, _, class, _, note, officerNote, online = GetGuildRosterInfo(i)   
     -- Get EPGP info
     ep, gp, main = EPGP:GetEPGP(self:Actor_Name(name))
     hasStanding = (ep and (not main)) and true or false
-    roster[name] = self:Actor_Create(name, realm, class, online and true or false, false, currentTime, note, officerNote, main, hasStanding)
+    roster[name] = self:Actor_Create(name, realm, class, online and true or false, false, currentTime, note, officerNote, main, hasStanding, rank)
   end 
   return roster
 end
@@ -89,4 +89,42 @@ function kEPGP:Guild_RebuildRoster()
       self.roster.guild[i].events[#self.roster.guild[i].events].online = false
     end
   end
+end
+
+--[[ Build reset roster 
+]]
+function kEPGP:Guild_GetResetRoster()
+  -- Check if reset enabled
+  if not self.db.profile.reset.enabled then return end
+  -- Get roster
+  GuildRoster()
+  local count = GetNumGuildMembers()
+  local roster, currentTime = {}, time()
+  local realm = GetRealmName()
+  local hasStanding
+  local output = {}
+  for i=1,count do
+    local name, rank, _, _, class, _, note, officerNote, online = GetGuildRosterInfo(i)
+    -- Check if hasStanding
+    ep, gp, main = EPGP:GetEPGP(self:Actor_Name(name))
+    hasStanding = (ep and (not main)) and true or false        
+    if hasStanding then
+      roster[name] = self:Actor_Create(name, realm, class, online and true or false, false, currentTime, note, officerNote, main, hasStanding, rank, ep, gp)
+    end
+  end  
+
+  for i,v in pairs(roster) do
+    local firstName = self:Actor_NameOnly(i)
+    -- By rank or note
+    if (v.rank and v.rank == self.db.profile.reset.rank) or (v.guildNote and strfind(strlower(v.guildNote), strlower(self.db.profile.reset.rank))) then
+      tinsert(output, v)
+    end
+  end
+
+  if output and #output > 1 then
+    -- Randomize
+    output = self:Utility_Shuffle(output)
+  end
+
+  return output  
 end

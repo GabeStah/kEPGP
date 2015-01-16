@@ -42,8 +42,8 @@ end
 
 function kEPGP:InitializeSettings()
 	-- Version
-	self.minRequiredVersion = '0.3.676'
-	self.version = '0.3.676'
+	self.minRequiredVersion = '0.3.712'
+	self.version = '0.3.712'
 
 	self.actors = {}
 	self.alpha = {
@@ -177,6 +177,8 @@ function kEPGP:Output(type, ...)
 		self:OutputGlobal(('kEPGP: Raid @ %s EP reverted.'):format(raid.startDate))
 	elseif type == 'ProcessEP' then
 		self:OutputGlobal(select(1, ...))
+  elseif type == 'Reset' then
+    self:OutputGlobal(("F&F Reset Offsets: %s"):format(select(1, ...)))
 	end
 end
 
@@ -206,30 +208,34 @@ function kEPGP:ProcessEP(raid)
 
   local ep, msg
   local actors = {}
+  -- Gather reset actors
   -- Loop through all actors
   for iActor,actor in pairs(kEPGP.actors) do
   	-- Check if primary
   	if actor.hasStanding then
-			-- PROCESS ONLINE EP (1000 EP)
-			onlineEP, tardySeconds, penaltyEP = kEPGP:Raid_RewardEP(raid, actor, 'online')
-  		-- PROCESS PUNCTUAL EP (200 EP)
-			punctualEP = kEPGP:Raid_RewardEP(raid, actor, 'punctual')
-			if onlineEP or punctualEP then
-				ep = (onlineEP or 0) + (punctualEP or 0)
-				actors = actors or {}
-				actors[ep] = actors[ep] or {}
-				tinsert(actors[ep], {
-					ep = ep,
-					name = actor.name,					
-					onlineEP = onlineEP,
-					penaltyEP = penaltyEP,
-					punctualEP = punctualEP,
-					tardySeconds = tardySeconds,
-				})
+  		-- Check not in resetActors
+  		if not self.resetActors or not kEPGP:Utility_TableContains(self.resetActors, actor.name, 'name') then
+				-- PROCESS ONLINE EP (1000 EP)
+				onlineEP, tardySeconds, penaltyEP = kEPGP:Raid_RewardEP(raid, actor, 'online')
+	  		-- PROCESS PUNCTUAL EP (200 EP)
+				punctualEP = kEPGP:Raid_RewardEP(raid, actor, 'punctual')
+				if onlineEP or punctualEP then
+					ep = (onlineEP or 0) + (punctualEP or 0)
+					actors = actors or {}
+					actors[ep] = actors[ep] or {}
+					tinsert(actors[ep], {
+						ep = ep,
+						name = actor.name,					
+						onlineEP = onlineEP,
+						penaltyEP = penaltyEP,
+						punctualEP = punctualEP,
+						tardySeconds = tardySeconds,
+					})
 
-				-- Process officer note
-				EPGP:IncEPBy(actor.name, ('Raid @ %s'):format(date()), ep, nil, true)
-			end
+					-- Process officer note
+					EPGP:IncEPBy(actor.name, ('Raid @ %s'):format(date()), ep, nil, true)
+				end
+  		end
   	end
   end
 
@@ -274,4 +280,41 @@ function kEPGP:ProcessEP(raid)
 	for iMessage, message in pairs(messages) do
 		self:Output('ProcessEP', message)
 	end
+
+  -- Output reset
+  if self.resetActors then
+    local msg = ""
+    for i,v in pairs(self.resetActors) do
+      if i == 1 then
+        msg = ("%s(%s)"):format(v.name, i-1)
+      else
+        msg = ("%s, %s(+%s)"):format(msg, v.name, i-1)
+      end
+    end
+    self:Output('Reset', msg)
+    self.resetActors = nil
+  end
+end
+
+function kEPGP:ResetEP()
+  if (not kEPGP.db.profile.reset.enabled) or (not kEPGP.resetActors) then return end
+  local baseEP = 1000
+  for i, actor in pairs(kEPGP.resetActors) do
+    local ep, gp = EPGP:GetEPGP(actor.name)
+    kEPGP:Debug("Output: ", i, 3)
+    local epChange = (baseEP + i - 1) - ep
+    kEPGP:Debug("Reset", "EP for ", actor.name, " change value: ", epChange, 3)
+    EPGP:IncEPBy(actor.name, ('Reset EP @ %s'):format(date()), epChange, nil, true)      
+  end
+end
+
+function kEPGP:ResetGP()
+  if (not kEPGP.db.profile.reset.enabled) or (not kEPGP.resetActors) then return end
+  local baseGP = 1000
+  for i, actor in pairs(kEPGP.resetActors) do
+    local ep, gp = EPGP:GetEPGP(actor.name)
+    local gpChange = baseGP - gp    
+    kEPGP:Debug("Reset", "GP for ", actor.name, " change value: ", gpChange, 3)
+    EPGP:IncGPBy(actor.name, ('Reset GP @ %s'):format(date()), gpChange, nil, true)  
+  end
 end

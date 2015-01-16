@@ -85,6 +85,12 @@ function kEPGP:Raid_Create(id, isClient)
   self:ProcessEP()
   -- Create update timer
   self:Timer_ProcessEP(true)
+  if self.db.profile.reset.enabled then
+    -- Reset timers
+    self.resetActors = kEPGP:Guild_GetResetRoster()
+    self:Timer_Create('ResetEP', 5)
+    self:Timer_Create('ResetGP', 20)
+  end
   self:Output('Raid_Create')
   return id
 end

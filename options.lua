@@ -24,6 +24,10 @@ kEPGP.defaults = {
 			target = nil,
 		},
 		raids = {},
+		reset = {
+			enabled = true,
+			rank = "F&F Raider",
+		},
 		settings = {
 			update = {
 				auction = {
@@ -199,6 +203,32 @@ kEPGP.options = {
 					set = function(info,value) kEPGP.db.profile.output.target = value end,
 					get = function(info) return kEPGP.db.profile.output.target end,					
 					disabled = function(i) return (kEPGP.db.profile.output.channel ~= 'CHANNEL' and kEPGP.db.profile.output.channel ~= 'WHISPER') end,
+					order = 4,
+				},
+			},
+			cmdHidden = true,
+		},
+		reset = {
+			name = 'Reset',
+			type = 'group',
+			args = {
+				enabled = {
+					name = 'Enabled',
+					type = 'toggle',
+					desc = 'Activate auto-reset of EP/GP upon raid creation.',
+					set = function(info,value) kEPGP.db.profile.reset.enabled = value end,
+					get = function(info) return kEPGP.db.profile.reset.enabled end,
+					width = 'full',					
+					order = 1,
+				},
+				rank = {
+					name = 'Guild Rank Name',
+					desc = 'Name of Guild Rank of players to be reset (also searches Guild Notes for matching string).',
+					type = 'input',
+					set = function(info,value) kEPGP.db.profile.reset.rank = value end,
+					get = function(info) return kEPGP.db.profile.reset.rank end,					
+					disabled = function(i) return not kEPGP.db.profile.reset.enabled end,
+					width = 'full',
 					order = 4,
 				},
 			},
